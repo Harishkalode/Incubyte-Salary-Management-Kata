@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "sqlite:///./salary.db"
+    volumes:
+      - ./salary.db:/app/salary.db
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  # Optional: For PostgreSQL instead of SQLite
+  # db:
+  #   image: postgres:15
+  #   environment:
+  #     POSTGRES_USER: salary_user
+  #     POSTGRES_PASSWORD: salary_password
+  #     POSTGRES_DB: salary_db
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #
+  # volumes:
+  #   postgres_data:
