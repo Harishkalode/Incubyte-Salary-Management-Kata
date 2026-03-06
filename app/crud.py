@@ -23,9 +23,26 @@ def get_employee(db: Session, employee_id: int) -> models.Employee | None:
     return db.query(models.Employee).filter(models.Employee.id == employee_id).first()
 
 
-def list_employees(db: Session, skip: int = 0, limit: int = 10) -> list[models.Employee]:
-    """List employees with pagination."""
-    return db.query(models.Employee).offset(skip).limit(limit).all()
+def list_employees(
+    db: Session, 
+    skip: int = 0, 
+    limit: int = 10,
+    search: str = None,
+    job_title: str = None,
+    country: str = None
+) -> list[models.Employee]:
+    """List employees with pagination and filtering."""
+    query = db.query(models.Employee)
+    
+    # Apply filters
+    if search:
+        query = query.filter(models.Employee.full_name.ilike(f"%{search}%"))
+    if job_title:
+        query = query.filter(models.Employee.job_title.ilike(job_title))
+    if country:
+        query = query.filter(models.Employee.country.ilike(country))
+    
+    return query.offset(skip).limit(limit).all()
 
 
 def update_employee(

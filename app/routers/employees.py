@@ -22,11 +22,21 @@ def create_employee(
 def list_employees(
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
+    search: str = Query(None, description="Search in employee names"),
+    job_title: str = Query(None, description="Filter by job title"),
+    country: str = Query(None, description="Filter by country"),
     db: Session = Depends(get_db),
 ):
-    """List all employees with pagination."""
+    """List all employees with pagination and filtering."""
     skip = (page - 1) * per_page
-    return crud_module.list_employees(db, skip=skip, limit=per_page)
+    return crud_module.list_employees(
+        db, 
+        skip=skip, 
+        limit=per_page,
+        search=search,
+        job_title=job_title,
+        country=country
+    )
 
 
 @router.get("/{employee_id}", response_model=schemas.Employee)
