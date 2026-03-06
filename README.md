@@ -52,7 +52,7 @@ Implementation Details
 - Tools used: I created files using automated edits and executed tests in the dev container to verify behavior.
 - Files added/modified by this change:
   - `app/main.py` (API + DB wiring)
-  - `app/database.py` (SQLAlchemy setup)
+  - `app/db.py` (SQLAlchemy setup)
   - `app/models.py` (Employee model)
   - `app/schemas.py` (Pydantic schemas)
   - `app/crud.py` (CRUD helpers)

@@ -27,7 +27,7 @@ def client(monkeypatch):
     
     # Import models and Base
     from app import models  # noqa: F401
-    from app.database import Base
+    from app.db import Base
     
     # Create tables on test engine
     Base.metadata.create_all(bind=test_engine)
@@ -38,7 +38,7 @@ def client(monkeypatch):
     assert "employees" in tables, f"employees table not created. Tables: {tables}"
     
     # Import database module
-    from app import database
+    from app import db
     
     # Create a new get_db that uses the test database
     def test_get_db():
@@ -55,7 +55,7 @@ def client(monkeypatch):
             del sys.modules[module_name]
     
     # Monkeypatch the get_db function BEFORE app factory is called
-    monkeypatch.setattr(database, "get_db", test_get_db)
+    monkeypatch.setattr(db, "get_db", test_get_db)
     
     # Create the app (it will import routers which will use the patched get_db)
     from app.main import create_app
