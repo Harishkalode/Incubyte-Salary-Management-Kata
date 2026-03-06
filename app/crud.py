@@ -31,7 +31,20 @@ def list_employees(
     job_title: str = None,
     country: str = None
 ) -> list[models.Employee]:
-    """List employees with pagination and filtering."""
+    """
+    List employees with pagination and optional filtering.
+    
+    Args:
+        db: Database session
+        skip: Number of records to skip (for pagination)
+        limit: Maximum number of records to return
+        search: Optional search term for employee names (case-insensitive partial match)
+        job_title: Optional job title filter (case-insensitive exact match)
+        country: Optional country filter (case-insensitive exact match)
+    
+    Returns:
+        List of Employee model instances
+    """
     query = db.query(models.Employee)
     
     # Apply filters
