@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from .database import init_db
-from .routers import employees, metrics
 
 
 @asynccontextmanager
@@ -22,13 +21,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Register routers
-app.include_router(employees.router)
-app.include_router(metrics.router)
-
 
 @app.get("/health")
 def health():
     """Health check endpoint."""
     return {"status": "ok"}
 
+
+# Routers will be registered here

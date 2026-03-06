@@ -13,7 +13,7 @@ router = APIRouter(prefix="/metrics", tags=["metrics"])
 def get_metrics_by_country(country: str, db: Session = Depends(get_db)):
     """Get salary metrics for employees in a country."""
     metrics = crud_module.get_country_metrics(db, country)
-    if metrics.count == 0:
+    if metrics["count"] == 0:
         raise HTTPException(status_code=404, detail="No employees found in this country")
     return metrics
 
@@ -22,6 +22,6 @@ def get_metrics_by_country(country: str, db: Session = Depends(get_db)):
 def get_metrics_by_job(job_title: str, db: Session = Depends(get_db)):
     """Get salary metrics for employees with a job title."""
     metrics = crud_module.get_job_metrics(db, job_title)
-    if metrics.count == 0:
+    if metrics["count"] == 0:
         raise HTTPException(status_code=404, detail="No employees found with this job title")
     return metrics

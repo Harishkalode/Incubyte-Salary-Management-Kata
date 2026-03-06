@@ -3,10 +3,7 @@ uvicorn[standard]>=0.20.0
 SQLAlchemy>=2.0
 alembic>=1.11
 pytest>=7.0
-pytest-cov>=4.0
 requests
 httpx
 python-dotenv
-pydantic[email]>=2.0
-
 

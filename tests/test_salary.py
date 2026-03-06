@@ -74,7 +74,7 @@ def test_get_salary_other_country_no_tds(client):
     data = resp.json()
     
     assert data["gross"] == 100000
-    assert data["deductions"]["tds"] == 0  # No TDS for Canada
+    assert data["deductions"] == {}  # No deductions
     assert data["total_deductions"] == 0
     assert data["net"] == 100000
 

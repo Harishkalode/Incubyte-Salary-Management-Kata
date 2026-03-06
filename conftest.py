@@ -1,55 +1,50 @@
 """Test configuration and fixtures."""
 import os
 import pytest
-from pathlib import Path
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
-# Set test database before importing app
-os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+# Use in-memory SQLite for tests
+TEST_DATABASE_URL = "sqlite:///:memory:"
+
+engine = create_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+)
+
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-@pytest.fixture(scope="function", autouse=True)
-def cleanup_test_db():
-    """Clean up test database before and after each test."""
-    db_file = Path("./test.db")
-    
-    # Remove before test
-    if db_file.exists():
-        db_file.unlink()
-    
-    yield
-    
-    # Remove after test  
-    if db_file.exists():
-        db_file.unlink()
+def override_get_db():
+    """Override database dependency for tests."""
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
 @pytest.fixture(scope="function")
-def client():
+def db():
+    """Create tables and provide session."""
+    from app.database import Base
+    
+    Base.metadata.create_all(bind=engine)
+    
+    yield TestingSessionLocal()
+    
+    Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(scope="function")
+def client(db):
     """Provide FastAPI test client."""
-    # Re-initialize app with test database
-    from importlib import reload
-    import app.database
-    import app.models  
-    import app.main
-    
-    # Reload to pick up environment variable
-    reload(app.database)
-    reload(app.models)
-    reload(app.main)
-    
-    # Initialize database
-    app.database.init_db()
-    
-    from app.main import app as fastapi_app
+    from app.main import app
     from app.database import get_db
     
-    # Create test client
-    test_client = TestClient(fastapi_app)
+    app.dependency_overrides[get_db] = override_get_db
     
-    yield test_client
-
-
-
-
-
+    yield TestClient(app)
+    
+    app.dependency_overrides.clear()
