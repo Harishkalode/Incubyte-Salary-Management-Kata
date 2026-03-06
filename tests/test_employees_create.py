@@ -1,19 +1,5 @@
 """Test for POST /employees endpoint (TDD red phase)."""
 import pytest
-from fastapi.testclient import TestClient
-
-
-@pytest.fixture
-def app_factory():
-    """App factory fixture."""
-    from app.main import app
-    return app
-
-
-@pytest.fixture
-def client(app_factory):
-    """TestClient fixture."""
-    return TestClient(app_factory)
 
 
 def test_create_employee_valid_payload(client):

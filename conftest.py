@@ -1,50 +1,79 @@
 """Test configuration and fixtures."""
 import os
+import sys
+import tempfile
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
-
-# Use in-memory SQLite for tests
-TEST_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
-
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    """Override database dependency for tests."""
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture(scope="function")
-def db():
-    """Create tables and provide session."""
+def client(monkeypatch):
+    """Provide FastAPI test client with isolated test database."""
+    # Create a temporary database file
+    fd, db_path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    os.unlink(db_path)
+    
+    db_url = f"sqlite:///{db_path}"
+    
+    # Set up test database  
+    test_engine = create_engine(
+        db_url,
+        connect_args={"check_same_thread": False},
+    )
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+    
+    # Import models and Base
+    from app import models  # noqa: F401
     from app.database import Base
     
-    Base.metadata.create_all(bind=engine)
+    # Create tables on test engine
+    Base.metadata.create_all(bind=test_engine)
     
-    yield TestingSessionLocal()
+    # Verify tables were created
+    insp = inspect(test_engine)
+    tables = insp.get_table_names()
+    assert "employees" in tables, f"employees table not created. Tables: {tables}"
     
-    Base.metadata.drop_all(bind=engine)
+    # Import database module
+    from app import database
+    
+    # Create a new get_db that uses the test database
+    def test_get_db():
+        """Override get_db to use test database."""
+        db = TestingSessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+    
+    # Clear any cached router module imports to ensure fresh imports with patched get_db
+    for module_name in list(sys.modules.keys()):
+        if module_name.startswith('app.routers'):
+            del sys.modules[module_name]
+    
+    # Monkeypatch the get_db function BEFORE app factory is called
+    monkeypatch.setattr(database, "get_db", test_get_db)
+    
+    # Create the app (it will import routers which will use the patched get_db)
+    from app.main import create_app
+    app = create_app()
+    
+    # Create test client
+    test_client = TestClient(app)
+    
+    yield test_client
+    
+    # Cleanup
+    test_engine.dispose()
+    if os.path.exists(db_path):
+        os.unlink(db_path)
 
 
-@pytest.fixture(scope="function")
-def client(db):
-    """Provide FastAPI test client."""
-    from app.main import app
-    from app.database import get_db
-    
-    app.dependency_overrides[get_db] = override_get_db
-    
-    yield TestClient(app)
-    
-    app.dependency_overrides.clear()
+
+
+
+
+
