@@ -177,3 +177,156 @@ def test_create_employee_missing_fields(client):
     }
     resp = client.post("/employees", json=payload)
     assert resp.status_code == 422  # Validation error
+
+
+def test_get_employees_filter_by_search(client):
+    """Test filtering employees by search term in name."""
+    # Create test employees
+    client.post("/employees", json={
+        "full_name": "John Smith",
+        "job_title": "Developer",
+        "country": "USA",
+        "salary": 80000,
+    })
+    client.post("/employees", json={
+        "full_name": "Jane Johnson",
+        "job_title": "Designer",
+        "country": "Canada",
+        "salary": 70000,
+    })
+    client.post("/employees", json={
+        "full_name": "Bob Wilson",
+        "job_title": "Manager",
+        "country": "UK",
+        "salary": 90000,
+    })
+    
+    # Filter by search term "John"
+    resp = client.get("/employees?search=John")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 2  # John Smith and Jane Johnson
+    names = [e["full_name"] for e in body]
+    assert "John Smith" in names
+    assert "Jane Johnson" in names
+    assert "Bob Wilson" not in names
+
+
+def test_get_employees_filter_by_job_title(client):
+    """Test filtering employees by job title."""
+    # Create test employees
+    client.post("/employees", json={
+        "full_name": "Alice Dev",
+        "job_title": "Developer",
+        "country": "India",
+        "salary": 75000,
+    })
+    client.post("/employees", json={
+        "full_name": "Bob Manager",
+        "job_title": "Manager",
+        "country": "USA",
+        "salary": 95000,
+    })
+    client.post("/employees", json={
+        "full_name": "Charlie Dev",
+        "job_title": "Developer",
+        "country": "Canada",
+        "salary": 80000,
+    })
+    
+    # Filter by job title "Developer"
+    resp = client.get("/employees?job_title=Developer")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 2  # Alice and Charlie
+    names = [e["full_name"] for e in body]
+    assert "Alice Dev" in names
+    assert "Charlie Dev" in names
+    assert "Bob Manager" not in names
+
+
+def test_get_employees_filter_by_country(client):
+    """Test filtering employees by country."""
+    # Create test employees
+    client.post("/employees", json={
+        "full_name": "David India",
+        "job_title": "Engineer",
+        "country": "India",
+        "salary": 85000,
+    })
+    client.post("/employees", json={
+        "full_name": "Eve USA",
+        "job_title": "Engineer",
+        "country": "United States",
+        "salary": 90000,
+    })
+    client.post("/employees", json={
+        "full_name": "Frank India",
+        "job_title": "Designer",
+        "country": "India",
+        "salary": 70000,
+    })
+    
+    # Filter by country "India"
+    resp = client.get("/employees?country=India")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 2  # David and Frank
+    names = [e["full_name"] for e in body]
+    assert "David India" in names
+    assert "Frank India" in names
+    assert "Eve USA" not in names
+
+
+def test_get_employees_filter_combined(client):
+    """Test filtering employees with multiple criteria."""
+    # Create test employees
+    client.post("/employees", json={
+        "full_name": "Grace Developer",
+        "job_title": "Developer",
+        "country": "India",
+        "salary": 78000,
+    })
+    client.post("/employees", json={
+        "full_name": "Henry Manager",
+        "job_title": "Manager",
+        "country": "India",
+        "salary": 95000,
+    })
+    client.post("/employees", json={
+        "full_name": "Ivy Developer",
+        "job_title": "Developer",
+        "country": "USA",
+        "salary": 82000,
+    })
+    
+    # Filter by job_title=Developer AND country=India
+    resp = client.get("/employees?job_title=Developer&country=India")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 1  # Only Grace
+    assert body[0]["full_name"] == "Grace Developer"
+
+
+def test_get_employees_filter_case_insensitive(client):
+    """Test that filtering is case insensitive."""
+    # Create test employee
+    client.post("/employees", json={
+        "full_name": "Jack CaseTest",
+        "job_title": "Senior Developer",
+        "country": "Australia",
+        "salary": 88000,
+    })
+    
+    # Filter with different cases
+    resp = client.get("/employees?job_title=senior developer")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 1
+    assert body[0]["full_name"] == "Jack CaseTest"
+    
+    resp = client.get("/employees?country=australia")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) == 1
+    assert body[0]["full_name"] == "Jack CaseTest"
