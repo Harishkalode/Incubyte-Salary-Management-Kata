@@ -38,3 +38,9 @@ class MetricResponse(BaseModel):
     max: Optional[float] = None
     avg: Optional[float] = None
     count: int
+
+
+class JobMetricResponse(BaseModel):
+    """Job metrics response (only avg and count)."""
+    avg: Optional[float] = None
+    count: int

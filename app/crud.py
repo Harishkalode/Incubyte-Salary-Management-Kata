@@ -102,13 +102,11 @@ def get_job_metrics(db: Session, job_title: str) -> dict:
         .all()
     )
     if not employees:
-        return {"count": 0, "min": None, "max": None, "avg": None}
+        return {"count": 0, "avg": None}
     
     salaries = [e.salary for e in employees]
     return {
         "count": len(salaries),
-        "min": min(salaries),
-        "max": max(salaries),
         "avg": sum(salaries) / len(salaries),
     }
 
