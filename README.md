@@ -26,6 +26,24 @@ source .venv/bin/activate
 python -m pytest -q
 ```
 
+Database Migrations
+
+This project uses Alembic for database schema migrations.
+
+To apply all pending migrations (create tables):
+
+```bash
+source .venv/bin/activate
+alembic upgrade head
+```
+
+To create a new migration after changing models:
+
+```bash
+source .venv/bin/activate
+alembic revision --autogenerate -m "describe your changes"
+```
+
 API
 
 - POST /employees
