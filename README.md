@@ -1,4 +1,4 @@
-# Salary Management Kata
+# Incubyte-Salary-Management-Kata
 
 A comprehensive FastAPI application demonstrating Test-Driven Development (TDD) principles for managing employee salary data with country-specific tax deductions.
 
@@ -456,4 +456,3 @@ Git commit plan (suggested)
 - feat(api): implement Employee model, CRUD and endpoints (TDD green)
 - fix(db): ensure DB tables created at import/startup
 - docs: add README and usage instructions
-# Incubyte-Salary-Management-Kata
