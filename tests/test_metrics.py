@@ -23,12 +23,12 @@ def test_metrics_by_country(client):
         "country": "USA",
         "salary": 150000,
     })
-    
+
     # Get India metrics
     resp = client.get("/metrics/country/India")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["min"] == 100000
     assert data["max"] == 120000
     assert data["avg"] == 110000  # (100000 + 120000) / 2
@@ -65,12 +65,12 @@ def test_metrics_by_job_title(client):
         "country": "India",
         "salary": 150000,
     })
-    
+
     # Get Developer metrics
     resp = client.get("/metrics/job/Developer")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["avg"] == 100000  # (80000 + 120000) / 2
     assert data["count"] == 2
 
@@ -89,11 +89,11 @@ def test_metrics_case_insensitive(client):
         "country": "India",
         "salary": 100000,
     })
-    
+
     # Try different cases
     resp1 = client.get("/metrics/job/Senior Developer")
     resp2 = client.get("/metrics/job/senior developer")
-    
+
     assert resp1.status_code == 200
     assert resp2.status_code == 200
     assert resp1.json()["count"] == resp2.json()["count"]

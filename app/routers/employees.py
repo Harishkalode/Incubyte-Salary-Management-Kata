@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from .. import models, schemas
+from .. import schemas
 from .. import crud as crud_module
 
 router = APIRouter(prefix="/employees", tags=["employees"])
@@ -30,8 +30,8 @@ def list_employees(
     """List all employees with pagination and filtering."""
     skip = (page - 1) * per_page
     return crud_module.list_employees(
-        db, 
-        skip=skip, 
+        db,
+        skip=skip,
         limit=per_page,
         search=search,
         job_title=job_title,

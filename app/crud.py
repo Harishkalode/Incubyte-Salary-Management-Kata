@@ -24,8 +24,8 @@ def get_employee(db: Session, employee_id: int) -> models.Employee | None:
 
 
 def list_employees(
-    db: Session, 
-    skip: int = 0, 
+    db: Session,
+    skip: int = 0,
     limit: int = 10,
     search: str = None,
     job_title: str = None,
@@ -33,7 +33,7 @@ def list_employees(
 ) -> list[models.Employee]:
     """
     List employees with pagination and optional filtering.
-    
+
     Args:
         db: Database session
         skip: Number of records to skip (for pagination)
@@ -41,12 +41,12 @@ def list_employees(
         search: Optional search term for employee names (case-insensitive partial match)
         job_title: Optional job title filter (case-insensitive exact match)
         country: Optional country filter (case-insensitive exact match)
-    
+
     Returns:
         List of Employee model instances
     """
     query = db.query(models.Employee)
-    
+
     # Apply filters
     if search:
         query = query.filter(models.Employee.full_name.ilike(f"%{search}%"))
@@ -54,7 +54,7 @@ def list_employees(
         query = query.filter(models.Employee.job_title.ilike(job_title))
     if country:
         query = query.filter(models.Employee.country.ilike(country))
-    
+
     return query.offset(skip).limit(limit).all()
 
 
@@ -114,7 +114,7 @@ def get_country_metrics(db: Session, country: str) -> dict:
     )
     if not employees:
         return {"count": 0, "min": None, "max": None, "avg": None}
-    
+
     salaries = [e.salary for e in employees]
     return {
         "count": len(salaries),
@@ -133,7 +133,7 @@ def get_job_metrics(db: Session, job_title: str) -> dict:
     )
     if not employees:
         return {"count": 0, "min": None, "max": None, "avg": None}
-    
+
     salaries = [e.salary for e in employees]
     return {
         "count": len(salaries),
@@ -146,22 +146,21 @@ def get_job_metrics(db: Session, job_title: str) -> dict:
 def calculate_salary(employee: models.Employee) -> schemas.SalaryDetail:
     """Calculate salary with deductions based on country."""
     from .config import get_deduction_rate
-    
+
     gross = employee.salary
     deduction_rate = get_deduction_rate(employee.country)
-    
+
     deductions = {}
     if deduction_rate > 0:
         tds = gross * deduction_rate
         deductions["tds"] = tds
-    
+
     total_deductions = sum(deductions.values())
     net = gross - total_deductions
-    
+
     return schemas.SalaryDetail(
         gross=gross,
         deductions=deductions,
         total_deductions=total_deductions,
         net=net,
     )
-

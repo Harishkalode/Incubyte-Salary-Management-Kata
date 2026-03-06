@@ -1,7 +1,7 @@
 """create employees table
 
 Revision ID: c866034d98d4
-Revises: 
+Revises:
 Create Date: 2026-03-06 13:46:55.226646
 
 """

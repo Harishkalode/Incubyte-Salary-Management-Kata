@@ -10,11 +10,11 @@ def test_get_salary_india_tds(client):
         "salary": 100000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     resp = client.get(f"/employees/{emp_id}/salary")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["gross"] == 100000
     assert "tds" in data["deductions"]
     assert data["deductions"]["tds"] == 10000  # 10% of 100000
@@ -31,11 +31,11 @@ def test_get_salary_usa_tds(client):
         "salary": 100000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     resp = client.get(f"/employees/{emp_id}/salary")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["gross"] == 100000
     assert data["deductions"]["tds"] == 12000  # 12% of 100000
     assert data["total_deductions"] == 12000
@@ -52,7 +52,7 @@ def test_get_salary_usa_short_form(client):
             "salary": 100000,
         })
         emp_id = create_resp.json()["id"]
-        
+
         resp = client.get(f"/employees/{emp_id}/salary")
         assert resp.status_code == 200
         data = resp.json()
@@ -68,11 +68,11 @@ def test_get_salary_other_country_no_tds(client):
         "salary": 100000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     resp = client.get(f"/employees/{emp_id}/salary")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["gross"] == 100000
     assert data["deductions"] == {}  # No deductions
     assert data["total_deductions"] == 0
@@ -94,11 +94,11 @@ def test_get_salary_zero_salary(client):
         "salary": 0,
     })
     emp_id = create_resp.json()["id"]
-    
+
     resp = client.get(f"/employees/{emp_id}/salary")
     assert resp.status_code == 200
     data = resp.json()
-    
+
     assert data["gross"] == 0
     assert data["deductions"]["tds"] == 0
     assert data["total_deductions"] == 0

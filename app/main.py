@@ -2,8 +2,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from .db import init_db
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,7 +15,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     from .routers import employees, metrics  # Import here for app factory pattern
-    
+
     app = FastAPI(
         title="Salary Management Kata",
         description="API for managing employees and calculating salaries",
@@ -33,7 +31,7 @@ def create_app() -> FastAPI:
     def health():
         """Health check endpoint."""
         return {"status": "ok"}
-    
+
     return app
 
 

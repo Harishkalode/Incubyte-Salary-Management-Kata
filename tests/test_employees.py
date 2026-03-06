@@ -28,7 +28,7 @@ def test_get_employees(client):
         "country": "USA",
         "salary": 80000,
     })
-    
+
     resp = client.get("/employees")
     assert resp.status_code == 200
     body = resp.json()
@@ -47,7 +47,7 @@ def test_get_employee_by_id(client):
         "salary": 120000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     resp = client.get(f"/employees/{emp_id}")
     assert resp.status_code == 200
     body = resp.json()
@@ -71,7 +71,7 @@ def test_update_employee(client):
         "salary": 75000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     # Update with PUT (full update)
     resp = client.put(f"/employees/{emp_id}", json={
         "full_name": "Charles",
@@ -96,7 +96,7 @@ def test_patch_employee(client):
         "salary": 30000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     # Partial update with PATCH
     resp = client.patch(f"/employees/{emp_id}", json={
         "job_title": "Junior Developer",
@@ -119,11 +119,11 @@ def test_delete_employee(client):
         "salary": 65000,
     })
     emp_id = create_resp.json()["id"]
-    
+
     # Delete
     resp = client.delete(f"/employees/{emp_id}")
     assert resp.status_code == 204
-    
+
     # Verify it's gone
     resp = client.get(f"/employees/{emp_id}")
     assert resp.status_code == 404
@@ -139,19 +139,19 @@ def test_list_employees_pagination(client):
             "country": "India",
             "salary": 50000 + i * 1000,
         })
-    
+
     # Test default pagination
     resp = client.get("/employees")
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) <= 10  # default per_page
-    
+
     # Test with per_page param
     resp = client.get("/employees?per_page=2")
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) == 2
-    
+
     # Test with page param
     resp = client.get("/employees?page=2&per_page=2")
     assert resp.status_code == 200
@@ -200,7 +200,7 @@ def test_get_employees_filter_by_search(client):
         "country": "UK",
         "salary": 90000,
     })
-    
+
     # Filter by search term "John"
     resp = client.get("/employees?search=John")
     assert resp.status_code == 200
@@ -233,7 +233,7 @@ def test_get_employees_filter_by_job_title(client):
         "country": "Canada",
         "salary": 80000,
     })
-    
+
     # Filter by job title "Developer"
     resp = client.get("/employees?job_title=Developer")
     assert resp.status_code == 200
@@ -266,7 +266,7 @@ def test_get_employees_filter_by_country(client):
         "country": "India",
         "salary": 70000,
     })
-    
+
     # Filter by country "India"
     resp = client.get("/employees?country=India")
     assert resp.status_code == 200
@@ -299,7 +299,7 @@ def test_get_employees_filter_combined(client):
         "country": "USA",
         "salary": 82000,
     })
-    
+
     # Filter by job_title=Developer AND country=India
     resp = client.get("/employees?job_title=Developer&country=India")
     assert resp.status_code == 200
@@ -317,14 +317,14 @@ def test_get_employees_filter_case_insensitive(client):
         "country": "Australia",
         "salary": 88000,
     })
-    
+
     # Filter with different cases
     resp = client.get("/employees?job_title=senior developer")
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) == 1
     assert body[0]["full_name"] == "Jack CaseTest"
-    
+
     resp = client.get("/employees?country=australia")
     assert resp.status_code == 200
     body = resp.json()
