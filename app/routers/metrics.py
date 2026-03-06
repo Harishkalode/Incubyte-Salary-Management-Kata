@@ -18,7 +18,7 @@ def get_metrics_by_country(country: str, db: Session = Depends(get_db)):
     return metrics
 
 
-@router.get("/job/{job_title}", response_model=schemas.JobMetricResponse)
+@router.get("/job/{job_title}", response_model=schemas.MetricResponse)
 def get_metrics_by_job(job_title: str, db: Session = Depends(get_db)):
     """Get salary metrics for employees with a job title."""
     metrics = crud_module.get_job_metrics(db, job_title)
